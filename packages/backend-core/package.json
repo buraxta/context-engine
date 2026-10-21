@@ -1,0 +1,9 @@
+{
+  "name": "@context-engine/backend-core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Context backend'inin açık çekirdeği: sohbet motoru (turns/llm/prompt), vault araçları, yapılacaklar, hafıza, modül kataloğu.",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "type": "module"
+}

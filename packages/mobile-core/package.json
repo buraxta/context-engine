@@ -1,0 +1,8 @@
+{
+  "name": "@context-engine/mobile-core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Context mobil uygulamasının açık çekirdeği: modül/yetenek sistemi, varyant mekanizması, i18n, sohbet/UI bileşenleri.",
+  "license": "Apache-2.0",
+  "main": "index.ts"
+}
