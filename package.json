@@ -1,0 +1,11 @@
+{
+  "name": "context-engine",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Context ürününün açık kaynak çekirdeği (open-core model) — backend ve mobil çekirdek bileşenler.",
+  "license": "Apache-2.0",
+  "exports": {
+    "./backend-core": "./packages/backend-core/index.js",
+    "./mobile-core": "./packages/mobile-core/index.ts"
+  }
+}
