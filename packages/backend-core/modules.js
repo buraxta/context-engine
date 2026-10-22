@@ -7,8 +7,9 @@ export const MODULES = {
   notes: { core: true, label: 'Notlar' },
   memory: { core: true, label: 'Hafıza' },
   inbox: { core: true, label: 'Akış' },
-  todos: { core: true, label: 'Yapılacaklar' },
   guide: { core: true, label: 'Rehber' },
+  // İsteğe bağlı ama açık gelir (U5.1): kapatılırsa sekme, uçlar ve asistan araçları kapanır.
+  todos: { core: false, default: true, label: 'Yapılacaklar' },
   // Temel ama kurulumu atlanabilir: açık gelir, bağlanana kadar "kurulmadı" görünür.
   bitwarden: { core: false, default: true, label: 'Şifreler (Bitwarden)' },
   github_sync: { core: false, default: false, label: 'GitHub ile Obsidian senkronu' },
