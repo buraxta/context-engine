@@ -6,7 +6,12 @@ Ticari/barındırma katmanı (admin paneli, ödeme/abonelik, kota mantığı, de
 
 ## Paketler
 
-- `packages/mobile-core/` — React Native/Expo çekirdek bileşenler: modül/yetenek sistemi (`registry.ts`), varyant mekanizması (`variant.ts`), i18n altyapısı (`src/i18n/`), sohbet/UI bileşenleri.
+- `packages/mobile-core/` — mobil uygulamaların UI'sız çekirdeği (React Native'e bağlı değil):
+  - `api/` — sunucu istemcisi `createApiClient({ baseUrl, token })`: turlar, yapılacaklar, sağlık, hafıza, hesap/tanışma/modüller. Adres, jeton ve hata metinleri uygulamadan gelir.
+  - `turn-runner.ts` — tur akışı: yeni tur, yoklama, süren tura ek metin (steer); yan etkiler çağıranda.
+  - `todos.ts` — pano/kart saf yardımcıları, Bugün ve zamanlı kart seçimi.
+  - `health.ts` — yakım parçaları, öğün toplamı, açık ve hafta özeti.
+  - `registry.ts` (modül görünürlüğü), `i18n.ts` (kütüphanesiz çeviri).
 - `packages/backend-core/` — Node.js sohbet motoru ve çekirdek API: `turns.js`, `llm.js`, `prompt.js`, `vault-tools.js`, `todos.js`, `memory.js`, `modules.js` (modül kataloğu).
 
 ## Lisans
