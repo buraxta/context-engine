@@ -9,13 +9,29 @@ export type TodoCard = {
   note: string;
   due: string | null;
   imageId: string | null;
+  /** Tekrar kuralı ("günlük", "haftalık" …); yalnız tekrarlı kartta gelir. */
+  repeat?: string | null;
   /** Yalnız istemcide: yüklenmeden önce gösterilen yerel görsel. */
   previewUri?: string | null;
 };
 export type TodoSection = { key: TodoKey; name: string; cards: TodoCard[] };
 export type TodoBoard = { id: string; name: string; sections: TodoSection[] };
 export type CompletedTodo = { id: string; title: string; board: string; key: TodoKey; completedAt: string };
-export type NewTodo = { boardId: string; title: string; description: string; key: TodoKey; image?: string; when?: string };
+/** Sunucu Türkçe kuralları da kabul eder ("her gün", "hafta içi" …). */
+export type TodoRepeat = 'daily' | 'weekdays' | 'weekly' | 'monthly' | 'yearly';
+export type NewTodo = {
+  boardId: string;
+  title: string;
+  description: string;
+  key: TodoKey;
+  image?: string;
+  /** Vade: serbest ifade ("yarın 9", "+30m", "YYYY-AA-GG SS:DD"); kart zamanlı açılır. */
+  when?: string;
+  /** Tekrar; `when` olmadan sunucu 400 döner. */
+  repeat?: TodoRepeat | string;
+};
+/** Zamanlı oluşturmanın sonucu: yeni kartın id'si ve vadesi (eski sunucu yalnız panoları döner → id null). */
+export type CreatedTodo = { id: string | null; due: string | null; toast: string | null; boards: TodoBoard[] };
 
 export const TODO_KEYS: TodoKey[] = ['acil', 'oncelikli', 'normal'];
 const TODO_TIMEOUT = 25_000;
@@ -29,6 +45,7 @@ export function parseTodoCard(value: unknown): TodoCard | null {
     note: asString(row.note),
     due: typeof row.due === 'string' ? row.due : null,
     imageId: typeof row.imageId === 'string' && row.imageId ? row.imageId : null,
+    ...(typeof row.repeat === 'string' && row.repeat ? { repeat: row.repeat } : {}),
   };
 }
 
@@ -74,17 +91,38 @@ export function createTodosApi(request: Requester) {
   const boards = async (path: string, body?: unknown, timeoutMs = TODO_TIMEOUT) =>
     parseTodoBoards(await request(path, { method: path === '/v1/todos' && body === undefined ? 'GET' : 'POST', body, timeoutMs }));
 
-  return {
-    list: () => boards('/v1/todos'),
-    create: (input: NewTodo) =>
-      boards('/v1/todos', {
+  const post = (input: NewTodo) =>
+    request('/v1/todos', {
+      body: {
         boardId: input.boardId,
         title: input.title,
         description: input.description,
         key: input.key,
         ...(input.image ? { image: { mime: 'image/jpeg', data: input.image } } : {}),
         ...(input.when ? { when: input.when } : {}),
-      }, input.image ? 60_000 : TODO_TIMEOUT),
+        ...(input.repeat ? { repeat: input.repeat } : {}),
+      },
+      timeoutMs: input.image ? 60_000 : TODO_TIMEOUT,
+    });
+
+  return {
+    list: () => boards('/v1/todos'),
+    create: async (input: NewTodo) => parseTodoBoards(await post(input)),
+    /** `create` ile aynı istek; yeni kartın id'si ve çözülen vade de döner (oluştur + snooze tek adım). */
+    createTodo: async (input: NewTodo): Promise<CreatedTodo> => {
+      const body = await post(input);
+      return {
+        id: typeof body.id === 'string' ? body.id : null,
+        due: typeof body.due === 'string' ? body.due : null,
+        toast: typeof body.toast === 'string' ? body.toast : null,
+        boards: parseTodoBoards(body),
+      };
+    },
+    /** Kalıcı silme: "son bitenler"de görünmez, görseli de gider. */
+    deleteTodo: async (id: string) => {
+      const body = await request(`/v1/todos/${encodeURIComponent(id)}`, { method: 'DELETE', timeoutMs: TODO_TIMEOUT });
+      return { title: asString(body.title), boards: parseTodoBoards(body) };
+    },
     move: (id: string, key: TodoKey) => boards(card(id, 'move'), { key }),
     edit: (id: string, title: string, description: string) => boards(card(id, 'edit'), { title, description }),
     complete: (id: string) => boards(card(id, 'complete')),
