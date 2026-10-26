@@ -1,0 +1,18 @@
+// Platformsuz paket: "DOM" yalnız fetch/AbortController tipleri için (telefon ve Electron aynı arayüzü verir);
+// window/document kullanılmaz.
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": [],
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}

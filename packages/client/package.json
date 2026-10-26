@@ -2,7 +2,15 @@
   "name": "@context-engine/client",
   "version": "0.0.0",
   "private": true,
-  "description": "Context'in platformsuz sunucu istemcisi: uçlar, tipler, canlı kanal, cihazlar arası senkron kuralları. React Native'e ve DOM'a bağlı değil.",
+  "description": "Context'in platformsuz sunucu istemcisi: uçlar, tipler, canlı kanal, cihazlar arası senkron kuralları, kod-runner istemcisi. React Native'e ve DOM'a bağlı değil.",
   "license": "Apache-2.0",
-  "main": "index.ts"
+  "main": "index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.5"
+  }
 }

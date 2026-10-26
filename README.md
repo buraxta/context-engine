@@ -10,6 +10,8 @@ Ticari/barındırma katmanı (admin paneli, ödeme/abonelik, kota mantığı, de
   - `api/` — `createApiClient({ baseUrl, token })`: turlar, yapılacaklar, sağlık, hafıza, hesap/tanışma/modüller, senkron (`sync`: ana sohbet dizisi, `/v1/live`, ortak durum, varlık). Adres, jeton ve hata metinleri uygulamadan gelir.
   - `sync/live.ts` — canlı kanal döngüsü `createLiveSync` (yetiş + uzun istek, duraklat/sürdür, eski sunucuda kendiliğinden kapanır).
   - `sync/rules.ts` — senkron kuralları: taslak anahtarı/birleşmesi, görüldü (ileri gider), kümeler (birleşim), varlık tazeliği.
+  - `kod/` — kod-runner (Kod ajanı) istemcisi, `kod` adıyla dışa verilir: `kod.createKodApi({ fetch?, messages? })`; her uç bağlantıyı (`{ apiUrl, token }`) ilk parametre alır. Sağlık/kilit, projeler, işler, yükleme, canlıya alma, zamanlı, Mac oturumları, şef, otopilot, PR incelemesi, masa, bildirim kaydı; tipler `kod.Run`, `kod.Otopilot` …
+  - Kontrol: `cd packages/client && npm install && npm run typecheck && npm test` (Vitest: senkron kuralları, canlı kanal, kod istemcisi, mobile-core dışa verimleri).
 - `packages/mobile-core/` — mobil uygulamaların UI'sız çekirdeği (istemciyi de yeniden dışa verir):
   - `turn-runner.ts` — tur akışı: yeni tur, yoklama, süren tura ek metin (steer); yan etkiler çağıranda.
   - `todos.ts` — pano/kart saf yardımcıları, Bugün ve zamanlı kart seçimi.

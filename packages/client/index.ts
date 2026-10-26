@@ -15,3 +15,6 @@ export * from './api/sync';
 export { createLiveSync } from './sync/live';
 export type { LiveHandlers, LiveOptions, LiveSync } from './sync/live';
 export * from './sync/rules';
+
+/** kod-runner (Kod ajanı) istemcisi: `kod.createKodApi()`, tipler `kod.Run`, `kod.Otopilot` … */
+export * as kod from './kod/index';
