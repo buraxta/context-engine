@@ -1,4 +1,4 @@
-import type { LifeMeal, LifePoint, LifeTargets } from './api/life';
+import type { LifeMeal, LifePoint, LifeTargets } from '../client/api/life';
 
 /** Sağlık hesapları (saf): yakım parçaları, öğün toplamı, açık ve hafta özeti. Metin üretmez. */
 

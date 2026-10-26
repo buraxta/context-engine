@@ -1,5 +1,5 @@
-import { ApiError } from './api/request';
-import type { TurnJob, TurnQuote, TurnsApi } from './api/turns';
+import { ApiError } from '../client/api/request';
+import type { TurnJob, TurnQuote, TurnsApi } from '../client/api/turns';
 
 /**
  * Tur akışı, ekrandan bağımsız: yeni tur aç → yokla → bitir. Bir tur sürerken gelen düz metin yeni tur

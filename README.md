@@ -6,8 +6,11 @@ Ticari/barındırma katmanı (admin paneli, ödeme/abonelik, kota mantığı, de
 
 ## Paketler
 
-- `packages/mobile-core/` — mobil uygulamaların UI'sız çekirdeği (React Native'e bağlı değil):
-  - `api/` — sunucu istemcisi `createApiClient({ baseUrl, token })`: turlar, yapılacaklar, sağlık, hafıza, hesap/tanışma/modüller. Adres, jeton ve hata metinleri uygulamadan gelir.
+- `packages/client/` — platformsuz sunucu istemcisi (telefon ve masaüstü ortak; React Native'e/DOM'a bağlı değil):
+  - `api/` — `createApiClient({ baseUrl, token })`: turlar, yapılacaklar, sağlık, hafıza, hesap/tanışma/modüller, senkron (`sync`: ana sohbet dizisi, `/v1/live`, ortak durum, varlık). Adres, jeton ve hata metinleri uygulamadan gelir.
+  - `sync/live.ts` — canlı kanal döngüsü `createLiveSync` (yetiş + uzun istek, duraklat/sürdür, eski sunucuda kendiliğinden kapanır).
+  - `sync/rules.ts` — senkron kuralları: taslak anahtarı/birleşmesi, görüldü (ileri gider), kümeler (birleşim), varlık tazeliği.
+- `packages/mobile-core/` — mobil uygulamaların UI'sız çekirdeği (istemciyi de yeniden dışa verir):
   - `turn-runner.ts` — tur akışı: yeni tur, yoklama, süren tura ek metin (steer); yan etkiler çağıranda.
   - `todos.ts` — pano/kart saf yardımcıları, Bugün ve zamanlı kart seçimi.
   - `health.ts` — yakım parçaları, öğün toplamı, açık ve hafta özeti.

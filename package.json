@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "exports": {
     "./backend-core": "./packages/backend-core/index.js",
+    "./client": "./packages/client/index.ts",
     "./mobile-core": "./packages/mobile-core/index.ts"
   }
 }
