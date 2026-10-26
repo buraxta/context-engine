@@ -1,0 +1,8 @@
+{
+  "name": "@context-engine/client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Context'in platformsuz sunucu istemcisi: uçlar, tipler, canlı kanal, cihazlar arası senkron kuralları. React Native'e ve DOM'a bağlı değil.",
+  "license": "Apache-2.0",
+  "main": "index.ts"
+}

@@ -1,4 +1,4 @@
-import type { TodoBoard, TodoCard, TodoKey, TodoSection } from './api/todos';
+import type { TodoBoard, TodoCard, TodoKey, TodoSection } from '../client/api/todos';
 
 /** Pano/kart saf yardımcıları: iyimser güncellemeler, sıralama, Bugün seçimi. Ekrana ve depoya bağlı değil. */
 
