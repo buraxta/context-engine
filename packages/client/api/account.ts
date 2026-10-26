@@ -37,6 +37,12 @@ export type DataOverview = {
   chatLog: boolean;
   sessions: Session[];
 };
+/** Expo push jetonunu kaydeden cihaz bilgisi. `channels`: kişisel sunucu Android bildirim kanallarını da alır. */
+export type PushRegistration = {
+  platform?: 'ios' | 'android' | string;
+  channels?: Record<string, { id: string; sound: string }> | null;
+};
+export type ExportResult = { url: string; expiresInSec: number; bytes: number };
 export type ProfilePatch = { name?: string; timezone?: string; model?: string; chatLog?: boolean };
 
 export type OnboardingQuestion = { key: string; soru: string };
@@ -84,6 +90,11 @@ export function deviceTimeZone(fallback = 'UTC') {
 
 export function createAccountApi(request: Requester) {
   const as = <T>(promise: Promise<Record<string, unknown>>) => promise as Promise<unknown> as Promise<T>;
+  /** Zip'i hazırlar; dönen bağlantı jetonsuz, tek kullanımlık ve kısa ömürlü. */
+  const prepareExport = async (): Promise<ExportResult> => {
+    const out = await as<ExportResult>(request('/v1/me/export', { method: 'POST', timeoutMs: 120_000 }));
+    return { ...out, url: request.url(out.url) };
+  };
 
   return {
     /** Herkese açık sunucu ayarları. Hata → açık kayıt kapalı sayılır. */
@@ -118,13 +129,18 @@ export function createAccountApi(request: Requester) {
     endSession: (id: string) => as<{ ok: boolean }>(request(`/v1/me/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' })),
     endOtherSessions: () => as<{ ended: number }>(request('/v1/me/sessions', { method: 'DELETE' })),
     dataOverview: () => as<DataOverview>(request('/v1/me/data')),
-    /** Zip'i hazırlar; dönen bağlantı jetonsuz, tek kullanımlık ve kısa ömürlü. */
-    prepareExport: async () => {
-      const out = await as<{ url: string; expiresInSec: number; bytes: number }>(
-        request('/v1/me/export', { method: 'POST', timeoutMs: 120_000 }),
-      );
-      return { ...out, url: request.url(out.url) };
-    },
+    prepareExport,
+    /** Verimi indir: `prepareExport` ile aynı (tam adresli tek kullanımlık zip bağlantısı). */
+    exportData: prepareExport,
+    /** Bu cihazın bildirim jetonu; aynı jeton başka hesaptaysa sunucu oradan düşürür. */
+    registerPush: (token: string, device: PushRegistration = {}) =>
+      as<{ ok?: boolean }>(request('/v1/push/register', {
+        body: {
+          token,
+          ...(device.platform ? { platform: device.platform } : {}),
+          ...(device.channels ? { channels: device.channels } : {}),
+        },
+      })),
 
     /** Seçimlere göre 0–2 takip sorusu; sunucu hep bir cevapla döner. */
     onboardingQuestions: (input: { secimler: string[]; serbest?: string }) =>

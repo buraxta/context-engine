@@ -6,6 +6,8 @@ export type MemoryKey = 'profil' | 'sozluk' | 'yerler' | 'kurallar' | 'alanlar';
 export type MemorySection = { title: string; items: string[] };
 export type MemoryFile = { key: MemoryKey; label: string; path: string; sections: MemorySection[] };
 export type MemoryEdit = { dosya: MemoryKey; islem: 'ekle' | 'guncelle' | 'sil'; satir?: string; eski?: string; bolum?: string };
+/** Son öğrendiklerim: hafızaya son eklenen/düzeltilen madde (`at` ISO, yeniden eskiye). */
+export type MemoryRecentItem = { key: MemoryKey; label: string; text: string; at: string };
 export type TurnSummary = { turns: number; steps: number; seconds: number; tokens: number; limit: number; hard: number };
 export type MemoryStats = TurnSummary & { days: number; domains: Record<string, TurnSummary> };
 
@@ -59,6 +61,22 @@ export function createMemoryApi(request: Requester) {
     },
     /** Tek satır ekle/güncelle/sil; güncel dosyayı döner. */
     edit: async (edit: MemoryEdit) => parseMemoryFile((await request('/v1/memory', { body: edit, timeoutMs: 30_000 })).file),
+    /** Son öğrendiklerim (en çok 100); sonradan silinen/değişen madde gelmez. */
+    recent: async (limit = 20): Promise<MemoryRecentItem[]> => {
+      const body = await request(`/v1/memory/recent?limit=${limit}`);
+      const items = Array.isArray(body.items) ? body.items : [];
+      return items.flatMap((raw) => {
+        const row = asRecord(raw);
+        if (!row || !MEMORY_KEYS.includes(row.key as MemoryKey) || typeof row.text !== 'string') return [];
+        return [{ key: row.key as MemoryKey, label: asString(row.label, String(row.key)), text: row.text, at: asString(row.at) }];
+      });
+    },
+    /** Maddeyi düzeltir; `eski` maddenin tam metni (ya da benzersiz parçası). Güncel dosyayı döner. */
+    patchItem: async (key: MemoryKey, eski: string, satir: string) =>
+      parseMemoryFile((await request(`/v1/memory/${key}`, { method: 'PATCH', body: { eski, satir }, timeoutMs: 30_000 })).file),
+    /** Maddeyi siler; bulunamaz ya da birden çok maddeye uyarsa 400. Güncel dosyayı döner. */
+    deleteItem: async (key: MemoryKey, eski: string) =>
+      parseMemoryFile((await request(`/v1/memory/${key}?eski=${encodeURIComponent(eski)}`, { method: 'DELETE', timeoutMs: 30_000 })).file),
     /** Son `days` günün tur özeti; sunucu bilmezse null. */
     stats: async (days = 7): Promise<MemoryStats | null> => {
       try {
