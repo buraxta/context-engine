@@ -144,9 +144,9 @@ export function createKodApi(options: KodOptions = {}) {
     /** Plan turuyla başlar (kilit ister). */
     addOtopilot: (c: KodConn, body: NewOtopilot) => request<Otopilot>(c, '/v1/otopilot', { body }, 60000),
     /** `now`: süren tur da kesilir; yoksa tur bitince durur. Görev açık kalır. */
-    pauseOtopilot: (c: KodConn, id: string, now = false) => request<Otopilot>(c, `/v1/otopilot/${id}/pause`, { body: { now } }),
+    pauseOtopilot: (c: KodConn, id: string, now = false) => request<Otopilot>(c, `/v1/otopilot/${id}/pause`, { body: { now } }, 60000),
     resumeOtopilot: (c: KodConn, id: string) => request<Otopilot>(c, `/v1/otopilot/${id}/resume`, { method: 'POST' }, 60000),
-    stopOtopilot: (c: KodConn, id: string) => request<Otopilot>(c, `/v1/otopilot/${id}/stop`, { method: 'POST' }),
+    stopOtopilot: (c: KodConn, id: string) => request<Otopilot>(c, `/v1/otopilot/${id}/stop`, { method: 'POST' }, 60000),
     /** Cevap karar defterine girer; `dismiss`: yok say. */
     answerOtopilot: (c: KodConn, id: string, questionId: string, answer: string, dismiss = false) =>
       request<Otopilot>(c, `/v1/otopilot/${id}/answer`, { body: dismiss ? { questionId, dismiss } : { questionId, answer } }, 60000),
