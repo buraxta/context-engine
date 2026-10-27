@@ -35,6 +35,25 @@ describe('yapılacaklar: silme ve zamanlı oluşturma', () => {
     expect((await client(() => ({ body: card({ repeat: 'günlük' }) })).api.todos.list())[0].sections[0].cards[0].repeat).toBe('günlük');
     expect('repeat' in (await client(() => ({ body: card({ repeat: null }) })).api.todos.list())[0].sections[0].cards[0]).toBe(false);
   });
+
+  it('görseller: kart listesi, ekle, sil, adres', async () => {
+    const card = (extra: object) => ({ boards: [{ id: 'b', name: 'B', sections: [{ key: 'normal', name: 'N', cards: [{ id: 'c', title: 'T', ...extra }] }] }] });
+    const first = async (extra: object) => (await client(() => ({ body: card(extra) })).api.todos.list())[0].sections[0].cards[0];
+    expect((await first({ imageId: 'i1', images: ['i1', 'i2', 7] })).images).toEqual(['i1', 'i2']);
+    expect((await first({ imageId: 'i1' })).images).toEqual(['i1']);
+    expect((await first({})).images).toEqual([]);
+
+    const { api, calls } = client(() => ({ body: { imageId: 'i9', ...BOARDS } }));
+    const added = await api.todos.addImage('c/1', { mime: 'image/png', data: 'AAA' });
+    expect(added.imageId).toBe('i9');
+    expect(calls[0]).toMatchObject({ url: 'https://x.test/v1/todos/c%2F1/images', method: 'POST', body: { image: { mime: 'image/png', data: 'AAA' } } });
+    await api.todos.removeImage('c1', 'i9');
+    expect(calls[1]).toMatchObject({ url: 'https://x.test/v1/todos/c1/images/i9', method: 'DELETE' });
+    await api.todos.createTodo({ boardId: 'b1', title: 'X', description: '', key: 'normal', images: [{ mime: 'image/jpeg', data: 'B' }] });
+    expect(calls[2]).toMatchObject({ body: { images: [{ mime: 'image/jpeg', data: 'B' }] } });
+    expect(api.todos.imageUrl('c1')).toBe('https://x.test/v1/todos/c1/image');
+    expect(api.todos.imageUrl('c1', 'i2')).toBe('https://x.test/v1/todos/c1/images/i2');
+  });
 });
 
 describe('hafıza: son öğrendiklerim, düzelt, sil', () => {
