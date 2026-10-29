@@ -126,6 +126,9 @@ export type Project = {
   check?: string | null;
 };
 
+/** Canlı eylemi: al = pull + up -d; pull = yalnız imajı çek; up = yalnız up -d; geri = önceki imaj; origin = merge sonrası. */
+export type DeployAction = 'al' | 'geri' | 'pull' | 'up';
+
 /** Kod › Canlı kartı (kod-runner `deploy.json`): sunucudaki bir compose klasörü. */
 export type DeployTarget = {
   id: string;
@@ -138,7 +141,7 @@ export type DeployTarget = {
   builds?: boolean;
   recent: {
     id: string;
-    action: 'al' | 'geri' | 'origin';
+    action: DeployAction | 'origin';
     services: string[];
     status: 'done' | 'error' | 'stopped';
     summary: string;
@@ -288,7 +291,7 @@ export type Run = {
   /** `eas`: ajan değil yayın aracı çalıştı. */
   kind?: 'eas' | 'review' | 'deploy';
   /** kind deploy: Kod › Canlı hedefi */
-  deploy?: { target: string; name: string; action: 'al' | 'geri' | 'origin'; services: string[] };
+  deploy?: { target: string; name: string; action: DeployAction | 'origin'; services: string[] };
   prompt: string;
   images?: string[];
   sessionId: string | null;

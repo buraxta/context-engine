@@ -1,6 +1,6 @@
 import { createKodRequest, type KodConn, type KodOptions } from './request';
 import type {
-  DeployBuilds, DeployLogs, DeployStatus, DeployTarget, DeskItem, DeskPatch, DeskState, Health, KodUsage, LiveReply, LockInfo,
+  DeployAction, DeployBuilds, DeployLogs, DeployStatus, DeployTarget, DeskItem, DeskPatch, DeskState, Health, KodUsage, LiveReply, LockInfo,
   MacSessions, MacTranscript, NewOtopilot, NewSchedule, NewSef, Otopilot, OtopilotList, OtopilotPhaseAction, Overview, PrDetail,
   PrItem, Project, ProjectStatus, PushNotice, Review, Run, RunSummary, Schedule, SefTask, Session, SessionHit,
 } from './types';
@@ -76,8 +76,8 @@ export function createKodApi(options: KodOptions = {}) {
     deployBuilds: (c: KodConn, id: string) => request<DeployBuilds>(c, `/v1/deploy/${id}/builds`, {}, 40000),
     deployLogs: (c: KodConn, id: string, service: string) =>
       request<DeployLogs>(c, `/v1/deploy/${id}/logs/${encodeURIComponent(service)}`, {}, 40000),
-    /** services `['*']` = kartın tüm servisleri; geri = deploy öncesi imaja dön */
-    deploy: (c: KodConn, id: string, services: string[], action: 'al' | 'geri' = 'al') =>
+    /** services `['*']` = kartın tüm servisleri; geri = deploy öncesi imaja dön; pull / up = adımlar ayrı */
+    deploy: (c: KodConn, id: string, services: string[], action: DeployAction = 'al') =>
       request<Run>(c, `/v1/deploy/${id}`, { body: { services, action } }, 30000),
     easUpdate: (c: KodConn, id: string) => request<Run>(c, `/v1/projects/${id}/eas-update`, { body: { confirm: true } }, 60000),
     run: (c: KodConn, id: string) => request<Run>(c, `/v1/runs/${id}`),
