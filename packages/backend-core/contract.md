@@ -42,10 +42,22 @@ Cloud'da Sağlık modülü kapalıysa hepsi 404. Hatalı tarih/ay 400.
 
 | Metod | Path | Açıklama | context-server | context-cloud |
 |---|---|---|---|---|
-| GET | `/v1/life?date=YYYY-MM-DD` | Günün ölçüm, öğün, antrenman ve özeti | ✓ | ✓ (+ `goal`) |
-| GET | `/v1/life/month?month=YYYY-MM` | Ayın gün noktaları ve hedefler | ✓ | ✓ (+ `goal`) |
+| GET | `/v1/life?date=YYYY-MM-DD` | Günün ölçüm, öğün, antrenman ve özeti | ✓ | ✓ (+ `goal`; özette `waterMl`, `sleepSource`) |
+| GET | `/v1/life/month?month=YYYY-MM` | Ayın gün noktaları ve hedefler | ✓ | ✓ (+ `goal`; noktada `waterMl`) |
 | GET | `/v1/life/media/:name` | Öğün/ölçüm görseli | ✓ | ✓ |
 | POST | `/v1/life/sync` | Telefonun adım/yakım/antrenman/uyku günü yazılır | — (kişiselde sunucu içe aktarır) | ✓ |
+| GET/PUT | `/v1/life/profile` | Bazal için boy, cinsiyet, doğum yılı; `missing`, `restingKcal` | — | ✓ |
+| GET/PUT | `/v1/life/targets` | Hedefler: `auto` + gerekçe `basis`, kişinin `manual`'i (null = otomatik) | — | ✓ |
+| POST | `/v1/life/meal` | Öğün: `{date, meal: kahvalti\|ogle\|aksam\|ara, text, kcal, proteinG?, amount?}` → `{intakeKcal}`; Beslenme tablosuna | — | ✓ |
+| POST | `/v1/life/meal/remove` | `{date, meal, name?}` (ad yoksa öğünün hepsi) → `{intakeKcal, removed}`; yoksa 404 | — | ✓ |
+| POST | `/v1/life/sport` | Elle spor: `{date, type, label?, minutes, intensity: hafif\|orta\|zor\|cok_zor, km?, avgHr?, kcal?, phoneCarried?}` → `{kcal, method, kgAssumed, fromSteps, burnKcal}`; kaloriyi sunucu hesaplar | — | ✓ |
+| POST | `/v1/life/sport/remove` | `{date, label}`, yalnız elle girilen → `{burnKcal}`; yoksa 404 | — | ✓ |
+| GET | `/v1/life/water?date=` | `{date, waterMl}` | — | ✓ |
+| POST | `/v1/life/water` | `{date, ml, mode: add\|set}` (add'de eksi = geri al) → `{waterMl}` | — | ✓ |
+| POST | `/v1/life/weight` | `{date, kg, waistCm?}`; aynı gün satırı güncellenir → `{replaced}` | — | ✓ |
+| POST | `/v1/life/sleep` | `{date (kalkış günü), bed, wake, minutes?}` → `{sleepMin}`; `uyku_kaynak: elle`, telefon ezmez | — | ✓ |
+
+Elle kayıt uçlarında ileri tarih 400. Özetteki `exercises[]` elle girilenlerde `type: "MANUAL"` ve ek alanlar taşır: `manual`, `sport`, `intensity`, `detail`, `fromSteps` (saat `time` boş olabilir).
 
 ## `/v1/memory*`
 
