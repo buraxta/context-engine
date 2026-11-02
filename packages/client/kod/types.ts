@@ -567,7 +567,8 @@ export type MacSessions = { enabled: boolean; reachable: boolean; at: string | n
  * Otopilot (kod-runner `otopilot.json`, Kod › Otopilot): fazlı işi "devam" beklemeden yürütür. Her faz ayrı oturumda
  * PR açar; runner kontrol komutunu çalıştırır, bağımsız denetçi `devam | duzelt | dur` kararı verir.
  */
-export type OtopilotStatus = 'planning' | 'running' | 'waiting' | 'paused' | 'done' | 'stopped' | 'failed';
+/** `draft`: plan sohbeti; Burak "başla" deyince `running` (süre sınırı o an başlar). */
+export type OtopilotStatus = 'draft' | 'planning' | 'running' | 'waiting' | 'paused' | 'done' | 'stopped' | 'failed';
 export type OtopilotPhaseStatus = 'todo' | 'running' | 'review' | 'fix' | 'waiting' | 'merge' | 'done' | 'skipped' | 'failed';
 export type OtopilotRole = 'plan' | 'phase' | 'review' | 'check';
 
@@ -654,7 +655,13 @@ export type OtopilotSummary = {
   done: number;
   current: { phaseId: string | null; role: OtopilotRole } | null;
   pending: number;
+  agents?: OtopilotAgents;
+  planSession?: string | null;
 };
+
+/** Rol başına ajan (plan / faz + düzeltme / denetçi). Boş rol görev motoruna (`engine/model`) düşer. */
+export type OtopilotAgent = { engine: string; model: string | null };
+export type OtopilotAgents = Partial<Record<'plan' | 'phase' | 'review', OtopilotAgent>>;
 
 export type OtopilotList = { open: OtopilotSummary[]; recent: OtopilotSummary[]; rev: number };
 
@@ -679,6 +686,9 @@ export type Otopilot = {
   log: { at: string; text: string }[];
   current: OtopilotCurrent | null;
   planSession: string | null;
+  agents?: OtopilotAgents;
+  /** Tur sürerken "başla" dendi: plan turu bitince başlar. */
+  startAfterPlan?: boolean;
   /** Kota limitinde kendiliğinden sürme saati. */
   resumeAt: string | null;
   rev: number;
@@ -695,6 +705,10 @@ export type NewOtopilot = {
   model?: string | null;
   /** Süre sınırı (saat). */
   hours?: number;
+  /** Rol başına ajan; `phase` verilirse görev motoru olur. */
+  agents?: OtopilotAgents;
+  /** true: önce plan sohbeti (taslak), `startOtopilot` ile başlar. */
+  draft?: boolean;
 };
 
 export type OtopilotPhaseAction = 'skip' | 'retry' | 'merged';
