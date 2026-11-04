@@ -1,9 +1,13 @@
 import { createKodRequest, type KodConn, type KodOptions } from './request';
 import type {
-  DeployAction, DeployBuilds, DeployLogs, DeployStatus, DeployTarget, DeskItem, DeskPatch, DeskState, Health, KodUsage, LiveReply, LockInfo,
+  DeployAction, DeployBuilds, DeployLogs, DeployStatus, DeployTarget, DeskItem, DeskPatch, DeskState, Health, KodUsage, LiveReply, LiveWant, LockInfo,
   MacSessions, MacTranscript, NewOtopilot, NewSchedule, NewSef, Otopilot, OtopilotList, OtopilotPhaseAction, Overview, PrDetail,
   PrItem, Project, ProjectStatus, PushNotice, Review, Run, RunSummary, Schedule, SefTask, Session, SessionHit,
 } from './types';
+
+/** `/v1/live` isteğinde iş: `id:rev:cevapBoyu[:taslakBoyu:taslakNesli:adımİmzası]` (eski sunucu fazlasını yok sayar). */
+const liveWant = (w: LiveWant) =>
+  `${w.id}:${w.rev ?? ''}:${w.len}${w.dlen !== undefined || w.ssig ? `:${w.dlen ?? 0}:${w.dgen ?? 0}:${w.ssig ?? ''}` : ''}`;
 
 const sessionQuery = (sessionId?: string | null) => (sessionId ? `?session=${encodeURIComponent(sessionId)}` : '');
 
@@ -82,13 +86,13 @@ export function createKodApi(options: KodOptions = {}) {
     easUpdate: (c: KodConn, id: string) => request<Run>(c, `/v1/projects/${id}/eas-update`, { body: { confirm: true } }, 60000),
     run: (c: KodConn, id: string) => request<Run>(c, `/v1/runs/${id}`),
     /**
-     * Canlı akış: `want` = izlenen işler (id, bilinen rev, telefondaki cevap boyu). Değişiklik olunca ya da
-     * `wait` sn sonunda döner. Eski sunucu 404.
+     * Canlı akış: `want` = izlenen işler (id, bilinen rev, telefondaki cevap boyu; varsa taslak boyu + nesli ve
+     * adım imzası → taslak eklemeli, adımlar yalnız değişince gelir). Değişiklik olunca ya da `wait` sn sonunda döner. Eski sunucu 404.
      */
-    live: (c: KodConn, want: { id: string; rev?: number; len: number }[], a: string, wait: number, signal?: AbortSignal) =>
+    live: (c: KodConn, want: LiveWant[], a: string, wait: number, signal?: AbortSignal) =>
       request<LiveReply>(
         c,
-        `/v1/live?runs=${want.map((w) => `${w.id}:${w.rev ?? ''}:${w.len}`).join(',')}&a=${encodeURIComponent(a)}&wait=${wait}`,
+        `/v1/live?runs=${want.map(liveWant).join(',')}&a=${encodeURIComponent(a)}&wait=${wait}`,
         { signal },
         (wait + 12) * 1000,
       ),

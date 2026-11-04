@@ -27,6 +27,12 @@ describe('kod istemcisi: istek', () => {
     expect(last(fetch).headers).toEqual({ 'content-type': 'application/json' });
   });
 
+  it('canlı akış: taslak/adım bilgisi varsa isteğe eklenir, yoksa eski biçim', async () => {
+    const { fetch, api } = setup(() => ({ body: { runs: {}, gone: [] } }));
+    await api.live(conn, [{ id: 'a1', rev: 3, len: 7 }, { id: 'b2', len: 0, dlen: 5, dgen: 2, ssig: 'ab12' }], 'x', 0);
+    expect(last(fetch).url).toBe('https://kod.test:8443/v1/live?runs=a1:3:7,b2::0:5:2:ab12&a=x&wait=0');
+  });
+
   it('gövdesiz POST ve DELETE yöntemi korunur', async () => {
     const { fetch, api } = setup();
     await api.lock(conn);
