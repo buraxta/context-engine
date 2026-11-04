@@ -459,8 +459,24 @@ export type NewSef = {
   passphrase?: string;
 };
 
-/** Canlı akışta iş: cevap ya tam (`answer`) ya eklemeli (`answerAt` + `answerAdd`). */
-export type LiveRun = Omit<Run, 'answer'> & { answer?: string; answerAt?: number; answerAdd?: string; stepCount?: number };
+/**
+ * Canlı akışta iş: cevap ya tam (`answer`) ya eklemeli (`answerAt` + `answerAdd`); taslak da öyle (`draftAt` + `draftAdd`,
+ * `draftGen` taslak her sıfırlanınca artar). `steps` yoksa adımlar değişmedi (`stepsSig` aynı).
+ */
+export type LiveRun = Omit<Run, 'answer' | 'steps'> & {
+  answer?: string;
+  answerAt?: number;
+  answerAdd?: string;
+  draftAt?: number;
+  draftAdd?: string;
+  draftGen?: number;
+  steps?: Run['steps'];
+  stepCount?: number;
+  stepsSig?: string;
+};
+
+/** `/v1/live` isteğinde izlenen iş: bilinen rev, cevap boyu; isteğe bağlı taslak boyu + nesli, adım imzası. */
+export type LiveWant = { id: string; rev?: number; len: number; dlen?: number; dgen?: number; ssig?: string };
 
 /** `/v1/live` içinde süren otomatik PR incelemesi (rapor soruları yok). */
 export type ActiveReview = {
