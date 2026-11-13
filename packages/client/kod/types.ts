@@ -62,6 +62,10 @@ export type Review = {
   thread?: ReviewQuestion[];
   /** Listede: soru sayısı. */
   questions?: number;
+  /** PR'ın satır/dosya özeti (inceleme başlarken); eski kayıtlarda yok. */
+  additions?: number | null;
+  deletions?: number | null;
+  changedFiles?: number | null;
 };
 
 export type ReviewQuestion = {
@@ -239,6 +243,10 @@ export type OverviewPr = {
   headRefName: string;
   updatedAt: string;
   reviewDecision: string;
+  /** satır/dosya özeti; eski runner'da yok */
+  additions?: number | null;
+  deletions?: number | null;
+  changedFiles?: number | null;
 };
 export type Overview = {
   locked: boolean;
